@@ -1,0 +1,58 @@
+#!/bin/bash
+
+###
+# Check for support packages: lookFor.
+#
+if [ -z "$(type lf 2>/dev/null)" ]; then
+    echo "Error! The lookFor package is not installed, but is required."
+    echo "   see: https://github.com/markcapella/lookFor"
+    echo 
+    exit 1
+fi
+
+###
+# If lookForSelect can't find a desktop for it's GUI selection window,
+# then output is produced to stdout.
+#
+if [ -z "$XDG_CURRENT_DESKTOP" ]; then
+    lf "$1" "$2" "$3"
+    exit 0
+fi
+
+###
+# Execute the lookForSelect GUI.
+#
+if [ -f lookForSelect.class ]; then
+    echo "*** Executing locally built version ***" >&2
+
+    RESULT=$(lf "$1" "$2" "$3" | java \
+        --module-path /snap/openjfx/current/sdk/lib/ \
+        --add-modules javafx.controls,javafx.swing,javafx.media \
+        lookForSelect) 2>/dev/null
+else
+    if [ -f /usr/local/lookForSelect/lookForSelect.class ]; then
+
+        RESULT=$(lf "$1" "$2" "$3" | java -cp /usr/local/lookForSelect \
+            --module-path /snap/openjfx/current/sdk/lib/ \
+            --add-modules javafx.controls,javafx.swing,javafx.media \
+            lookForSelect) 2>/dev/null
+    else
+        echo
+        echo "*** There is no locally built version of |lookForSelect|,"
+        echo "*** nor one installed by |sudo make install|."
+        echo
+        echo "*** Try |make clean && sudo make|   -or"
+        echo "***     |make clean && sudo make install|"
+        echo
+        echo "*** Then try to run this again."
+        echo
+        exit 1        
+    fi
+fi
+
+###
+# Let xdg-open perform file action based on mime type.
+#
+if [ -n "$RESULT" ]; then
+    xdg-open $RESULT 1>/dev/null 2>/dev/null
+fi
