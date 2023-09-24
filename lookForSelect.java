@@ -48,8 +48,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
+
 import javafx.scene.layout.VBox;
+
 import javafx.scene.paint.Color;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -71,7 +72,7 @@ import javafx.scene.control.ListView;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;
-
+import javafx.scene.layout.Priority;
 
 /** *********************************************************************
  ** lookForSelect JavaFX Application.
@@ -102,13 +103,15 @@ public class lookForSelect extends Application {
     static final Preferences mPref = Preferences.userRoot().node(WINDOW_TITLE);
     static final ObservableList<String> mStdinStrings =
         FXCollections.observableArrayList();
-    static final ListView<String> mListView = new ListView<>();
+    static ListView<String> mListView = new ListView<>();
 
-    static Stage mApplication;
-    static Image mApplicationIcon;
+    Stage mApplication;
+    Image mApplicationIcon;
+
+    Scene mScene;
+    VBox mSceneBox;
 
     static boolean mShutdownNormal = false;
-
 
     /** *********************************************************************
      ** Main Start stage. Set title, icon, etc.
@@ -120,23 +123,15 @@ public class lookForSelect extends Application {
 
         setApplicationIcon(mApplication);
 
-        setApplicationProperties(mApplication);
+        restoreApplicationProperties(mApplication);
 
-        mApplication.setScene(new Scene(createApplicationScene(),
-            WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT));
+        //mSceneBox = createApplicationScene();
+        //mScene = new Scene(mSceneBox, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+        mApplication.setScene(new Scene(createApplicationScene(), WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT));
+
         createApplicationPropertyListeners(mApplication);
 
-        mApplication.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent e) {
-            }
-        });
-
-        setApplicationShutdownHook();
-
         mApplication.show();
-
-        ensureCorrectInitialPosition(); // Hack, see method.
 
         // Fast out. Zero items means nothing to display. A single
         // item is immediatley assumed "selected" for action.
@@ -145,7 +140,6 @@ public class lookForSelect extends Application {
                 System.out.println(mStdinStrings.get(0));
             }
             mApplication.close();
-            // Unreach.
         }
     }
 
@@ -167,7 +161,7 @@ public class lookForSelect extends Application {
     /** *********************************************************************
      ** Restore window property changes @ app start / restart.
      **/
-    public void setApplicationProperties(Stage app) {
+    public void restoreApplicationProperties(Stage app) {
         app.setAlwaysOnTop(getWindowOnTopValue());
 
         app.setX(getWindowPosX());
@@ -178,26 +172,26 @@ public class lookForSelect extends Application {
     }
 
     /** *********************************************************************
-     ** Undocumented framework feature:
-     **
-     ** Our app scene will position at (0, 0) during insitial show(). It
-     ** receives a moveTo(0, 0) request generated internally.
-     **
-     ** For correct positioning without screen jank:
-     **
-     **    Option #1 : BEST!  Suppresses reception of incorrect moveTo()'s.
-     **                WORST! I don't know why.
-     **
-     **        { new Dialog<String>(); }
-     **
-     **    Option #2 : Repeats code already in setApplicationProperties(),
-     **                but handles moveTo()'s & fits framework intentions.
-     **
-     **        mApplication.setX(getWindowPosX());
-     **        mApplication.setY(getWindowPosY());
+     ** Capture application property changes for restart.
      **/
-    public void ensureCorrectInitialPosition() {
-        new Dialog<String>();
+    public void createApplicationPropertyListeners(Stage app) {
+        app.alwaysOnTopProperty().addListener((o, oV, newValue) -> {
+            setWindowOnTopValue(newValue);
+        });
+
+        app.xProperty().addListener((o, oV, newValue) -> {
+            setWindowPosX(newValue.doubleValue());
+        });
+        app.yProperty().addListener((o, oV, newValue) -> {
+            setWindowPosY(newValue.doubleValue());
+        });
+
+        app.widthProperty().addListener((o, oV, newValue) -> {
+            setWindowWidth(newValue.doubleValue());
+        });
+        app.heightProperty().addListener((o, oV, newValue) -> {
+            setWindowHeight(newValue.doubleValue());
+        });
     }
 
     /** *********************************************************************
@@ -211,10 +205,12 @@ public class lookForSelect extends Application {
         final InputStreamReader instream = new InputStreamReader(System.in);
         final BufferedReader buffer = new BufferedReader(instream);
         try {
-            String stdinString = buffer.readLine();
-            while (stdinString != null && !stdinString.isEmpty()) {
-                mStdinStrings.add(stdinString);
-                stdinString = buffer.readLine();
+            if (buffer.ready()) {
+                String stdinString = buffer.readLine();
+                while (stdinString != null && !stdinString.isEmpty()) {
+                    mStdinStrings.add(stdinString);
+                    stdinString = buffer.readLine();
+                }
             }
         } catch (Exception e) { }
 
@@ -235,6 +231,7 @@ public class lookForSelect extends Application {
         });
 
         // Set the strings into the View.
+        VBox.setVgrow(mListView, Priority.ALWAYS);
         mListView.setItems(mStdinStrings);
 
         // Add double click listener for item View "selection".
@@ -259,54 +256,6 @@ public class lookForSelect extends Application {
      **/
     public static void processUserSelection() {
         System.out.println(mListView.getSelectionModel().getSelectedItem());
-    }
-
-    /** *********************************************************************
-     ** Capture application property changes for restart.
-     **/
-    public void createApplicationPropertyListeners(Stage app) {
-        app.alwaysOnTopProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue o, Boolean oV, Boolean newValue) {
-                setWindowOnTopValue(newValue);
-            }});
-
-        app.xProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue o, Number oV, Number newValue) {
-                // System.err.println("Setting X to " + newValue.intValue() + ") requested.");
-                setWindowPosX(newValue.doubleValue());
-            }});
-        app.yProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue o, Number oV, Number newValue) {
-                // System.err.println("Setting Y to " + newValue.intValue() + ") requested.");
-                setWindowPosY(newValue.doubleValue());
-            }});
-
-        app.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue o, Number oV, Number newValue) {
-                setWindowWidth(newValue.doubleValue());
-            }});
-        app.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue o, Number oV, Number newValue) {
-                setWindowHeight(newValue.doubleValue());
-            }});
-    }
-
-    /** *********************************************************************
-     ** Application shutdown hook executes after either/or ;
-     **     A)   Normal app shutdown & we've executed stop().
-     **     B) Abnormal app shutdown (proc kill) & we've NOT executed stop().
-     **/
-    public void setApplicationShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-            }
-        });
     }
 
     /** *********************************************************************

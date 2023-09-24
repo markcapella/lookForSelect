@@ -1,5 +1,7 @@
 #!/bin/bash
 
+OPENJFX=/usr/share/openjfx/lib
+
 ###
 # Check for support packages: lookFor.
 #
@@ -22,33 +24,11 @@ fi
 ###
 # Execute the lookForSelect GUI.
 #
-if [ -f lookForSelect.class ]; then
-    echo "*** Executing locally built version ***" >&2
-
-    RESULT=$(lf "$1" "$2" "$3" | java \
-        --module-path /snap/openjfx/current/sdk/lib/ \
-        --add-modules javafx.controls,javafx.swing,javafx.media \
-        lookForSelect) 2>/dev/null
-else
-    if [ -f /usr/local/lookForSelect/lookForSelect.class ]; then
-
-        RESULT=$(lf "$1" "$2" "$3" | java -cp /usr/local/lookForSelect \
-            --module-path /snap/openjfx/current/sdk/lib/ \
-            --add-modules javafx.controls,javafx.swing,javafx.media \
-            lookForSelect) 2>/dev/null
-    else
-        echo
-        echo "*** There is no locally built version of |lookForSelect|,"
-        echo "*** nor one installed by |sudo make install|."
-        echo
-        echo "*** Try |make clean && sudo make|   -or"
-        echo "***     |make clean && sudo make install|"
-        echo
-        echo "*** Then try to run this again."
-        echo
-        exit 1        
-    fi
-fi
+RESULT=$(lf "$1" "$2" "$3" | java \
+    --module-path "$OPENJFX" \
+    --add-modules javafx.controls,javafx.swing,javafx.media \
+    --class-path /usr/local/lookForSelect \
+    lookForSelect) 2>/dev/null
 
 ###
 # Let xdg-open perform file action based on mime type.

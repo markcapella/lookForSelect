@@ -2,9 +2,11 @@
 # *****************************************************
 # Variables to control Makefile operation.
 
+OPENJFX = /usr/share/openjfx/lib
+
 JCOMPILER = javac
 JFLAGS = \
-	--module-path /snap/openjfx/current/sdk/lib/ \
+	--module-path $(OPENJFX) \
 	--add-modules javafx.controls,javafx.swing,javafx.media
 
 JRUNTIME = java
@@ -17,9 +19,9 @@ lookForSelect: lookForSelect.java
 	@echo "Build starts ..."
 	@echo
 
-	@if [ ! -d "/snap/openjfx/current" ]; then \
+	@if [ ! -d $(OPENJFX) ]; then \
 		echo "Error! The openjfx package is not installed, but is required."; \
-		echo "   try 'sudo snap install openjfx', then re-run this make."; \
+		echo "   try 'sudo apt install openjfx', then re-run this make."; \
 		echo ""; \
 		exit 1; \
 	fi
@@ -28,22 +30,6 @@ lookForSelect: lookForSelect.java
 
 	@echo
 	@echo "Build Done !"
-	@echo
-
-# ****************************************************
-# Target needed to run the executable from the source folder.
-
-run: lookForSelect
-	@echo
-	@echo "Run: starts ..."
-	@echo
-
-	@echo "   To test use syntax: ./lfs string target endString"
-	@echo "   for example:"
-	@echo
-	@echo "   ./lfs \"\" ~ .java"
-	@echo
-	@echo "Run Done !"
 	@echo
 
 # ****************************************************

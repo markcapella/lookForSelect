@@ -18,31 +18,29 @@
 ###    CD into source repo.
 
     make
-    make install
 
-    make run
+    sudo make install
+    sudo make uninstall
 
-    make uninstall
     make clean
+
 
 ## <ins>Installed Usage</ins>
 
 ###    lookForSelect string target endsWith
 ###    lfs string target endsWith
 
-
     lfs
-
     lfs foo
     lfs foo ~
-    lfs foo ~ .cpp
+    lfs foo / .cpp
 
-    lfs "" /
-    lfs "" "~" "/.git"
 
-    NOTE: If the target is the root dir "/", the user's HOME folder
-          is assumed un-interesting and will be skipped, perhaps
-          requiring s second scan for an entire system review.
+### NOTE:
+
+        If the target of lookFor or lookForSelect is the root dir "/",
+    the user's HOME folder is assumed un-interesting and will be skipped,
+    perhaps requiring a second scan for an entire system review.
 
 
 ## markcapella@twcny.rr.com Rocks !
