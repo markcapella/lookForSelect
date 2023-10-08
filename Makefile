@@ -3,13 +3,13 @@
 # Variables to control Makefile operation.
 
 OPENJFX = /usr/share/openjfx/lib
+# OPENJFX = /home/$USER/jfx/build/sdk/lib
 
 JCOMPILER = javac
-JFLAGS = \
-	--module-path $(OPENJFX) \
-	--add-modules javafx.controls,javafx.swing,javafx.media
 
-JRUNTIME = java
+JFLAGS = --module-path $(OPENJFX) \
+	     --add-modules javafx.controls,javafx.swing,javafx.media
+
 
 # ****************************************************
 # Targets needed to build the executable from the source folder.

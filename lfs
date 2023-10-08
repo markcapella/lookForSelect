@@ -1,6 +1,7 @@
 #!/bin/bash
 
 OPENJFX=/usr/share/openjfx/lib
+# OPENJFX=/home/$USER/jfx/build/sdk/lib
 
 ###
 # Check for support packages: lookFor.

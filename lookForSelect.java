@@ -108,7 +108,7 @@ public class lookForSelect extends Application {
     Stage mApplication;
     Image mApplicationIcon;
 
-    Scene mScene;
+    // Scene mScene;
     VBox mSceneBox;
 
     static boolean mShutdownNormal = false;
@@ -118,6 +118,8 @@ public class lookForSelect extends Application {
      **/
     @Override
     public void start(Stage stage) {
+        // System.err.println("lookForSelect: start() Starts.");
+
         mApplication = stage;
         mApplication.setTitle(WINDOW_TITLE);
 
@@ -125,9 +127,10 @@ public class lookForSelect extends Application {
 
         restoreApplicationProperties(mApplication);
 
-        //mSceneBox = createApplicationScene();
-        //mScene = new Scene(mSceneBox, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
-        mApplication.setScene(new Scene(createApplicationScene(), WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT));
+        // mSceneBox = createApplicationScene();
+        // mScene = new Scene(mSceneBox, WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+        mApplication.setScene(new Scene(createApplicationScene(),
+            WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT));
 
         createApplicationPropertyListeners(mApplication);
 
@@ -141,6 +144,8 @@ public class lookForSelect extends Application {
             }
             mApplication.close();
         }
+
+        // System.err.println("lookForSelect: start() Finishes.");
     }
 
     /** *********************************************************************
@@ -148,7 +153,11 @@ public class lookForSelect extends Application {
      **/
     @Override
     public void stop() {
+        // System.err.println("lookForSelect: stop() Starts.");
+
         mShutdownNormal = true;
+
+        // System.err.println("lookForSelect: stop() Finishes.");
     }
 
     /** *********************************************************************
@@ -255,7 +264,11 @@ public class lookForSelect extends Application {
      ** Process main user request.
      **/
     public static void processUserSelection() {
+        // System.err.println("lookForSelect: processUserSelection() Starts.");
+
         System.out.println(mListView.getSelectionModel().getSelectedItem());
+
+        // System.err.println("lookForSelect: processUserSelection() Finishes.");
     }
 
     /** *********************************************************************
